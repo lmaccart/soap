@@ -8,7 +8,9 @@
     "scheme": "quicksoap",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "edu.rice.lm160.quicksoap",
+      "supportsTablet": false
     },
     "android": {
       "adaptiveIcon": {
