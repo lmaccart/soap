@@ -72,6 +72,24 @@ const ni = StyleSheet.create({
   range: { ...Typography.caption, textAlign: 'center' },
 });
 
+function VitalGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <View style={vg.wrap}>
+      <Text style={vg.label}>{label}</Text>
+      {children}
+    </View>
+  );
+}
+
+const vg = StyleSheet.create({
+  wrap: {
+    backgroundColor: Colors.surface, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.borderLight,
+    paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, paddingBottom: Spacing.md, gap: Spacing.sm,
+  },
+  label: { ...Typography.label, color: Colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
+});
+
 export default function VitalsScreen() {
   const router = useRouter();
   const { state, dispatch, currentPatient } = useAssessment();
@@ -123,37 +141,46 @@ export default function VitalsScreen() {
         return (
           <View style={styles.stepContent}>
             <NumInput label="Heart Rate (bpm)" value={draft.pulseRate} onChange={(v) => set({ pulseRate: v })} placeholder="72" rangeKey="pulseRate" />
-            <Text style={styles.subLabel}>Quality</Text>
-            <RadioGroup options={VITAL_OPTIONS.pulseQuality.map(v => ({ value: v, label: v }))} value={draft.pulseQuality} onChange={(v) => set({ pulseQuality: v })} direction="horizontal" />
-            <Text style={styles.subLabel}>Regularity</Text>
-            <RadioGroup options={VITAL_OPTIONS.pulseRegularity.map(v => ({ value: v, label: v }))} value={draft.pulseRegularity} onChange={(v) => set({ pulseRegularity: v })} direction="horizontal" />
+            <VitalGroup label="Quality">
+              <RadioGroup options={VITAL_OPTIONS.pulseQuality.map(v => ({ value: v, label: v }))} value={draft.pulseQuality} onChange={(v) => set({ pulseQuality: v })} direction="horizontal" />
+            </VitalGroup>
+            <VitalGroup label="Regularity">
+              <RadioGroup options={VITAL_OPTIONS.pulseRegularity.map(v => ({ value: v, label: v }))} value={draft.pulseRegularity} onChange={(v) => set({ pulseRegularity: v })} direction="horizontal" />
+            </VitalGroup>
           </View>
         );
       case 'resp':
         return (
           <View style={styles.stepContent}>
             <NumInput label="Respiratory Rate (breaths/min)" value={draft.respRate} onChange={(v) => set({ respRate: v })} placeholder="16" rangeKey="respRate" />
-            <Text style={styles.subLabel}>Quality</Text>
-            <RadioGroup options={VITAL_OPTIONS.respQuality.map(v => ({ value: v, label: v }))} value={draft.respQuality} onChange={(v) => set({ respQuality: v })} direction="horizontal" />
+            <VitalGroup label="Quality">
+              <RadioGroup options={VITAL_OPTIONS.respQuality.map(v => ({ value: v, label: v }))} value={draft.respQuality} onChange={(v) => set({ respQuality: v })} direction="horizontal" />
+            </VitalGroup>
           </View>
         );
       case 'skin':
         return (
           <View style={styles.stepContent}>
-            <Text style={styles.subLabel}>Color</Text>
-            <RadioGroup options={VITAL_OPTIONS.skinColor.map(v => ({ value: v, label: v }))} value={draft.skinColor} onChange={(v) => set({ skinColor: v })} direction="horizontal" />
-            <Text style={styles.subLabel}>Temperature</Text>
-            <RadioGroup options={VITAL_OPTIONS.skinTemp.map(v => ({ value: v, label: v }))} value={draft.skinTemp} onChange={(v) => set({ skinTemp: v })} direction="horizontal" />
-            <Text style={styles.subLabel}>Moisture</Text>
-            <RadioGroup options={VITAL_OPTIONS.skinMoisture.map(v => ({ value: v, label: v }))} value={draft.skinMoisture} onChange={(v) => set({ skinMoisture: v })} direction="horizontal" />
-            <Text style={styles.subLabel}>Cap Refill</Text>
-            <RadioGroup options={VITAL_OPTIONS.capRefill.map(v => ({ value: v, label: v }))} value={draft.capRefill} onChange={(v) => set({ capRefill: v })} direction="horizontal" />
+            <VitalGroup label="Color">
+              <RadioGroup options={VITAL_OPTIONS.skinColor.map(v => ({ value: v, label: v }))} value={draft.skinColor} onChange={(v) => set({ skinColor: v })} direction="horizontal" />
+            </VitalGroup>
+            <VitalGroup label="Temperature">
+              <RadioGroup options={VITAL_OPTIONS.skinTemp.map(v => ({ value: v, label: v }))} value={draft.skinTemp} onChange={(v) => set({ skinTemp: v })} direction="horizontal" />
+            </VitalGroup>
+            <VitalGroup label="Moisture">
+              <RadioGroup options={VITAL_OPTIONS.skinMoisture.map(v => ({ value: v, label: v }))} value={draft.skinMoisture} onChange={(v) => set({ skinMoisture: v })} direction="horizontal" />
+            </VitalGroup>
+            <VitalGroup label="Cap Refill">
+              <RadioGroup options={VITAL_OPTIONS.capRefill.map(v => ({ value: v, label: v }))} value={draft.capRefill} onChange={(v) => set({ capRefill: v })} direction="horizontal" />
+            </VitalGroup>
           </View>
         );
       case 'pupils':
         return (
           <View style={styles.stepContent}>
-            <RadioGroup options={VITAL_OPTIONS.pupils.map(v => ({ value: v, label: v }))} value={draft.pupils} onChange={(v) => set({ pupils: v })} direction="horizontal" />
+            <VitalGroup label="Pupils">
+              <RadioGroup options={VITAL_OPTIONS.pupils.map(v => ({ value: v, label: v }))} value={draft.pupils} onChange={(v) => set({ pupils: v })} direction="horizontal" />
+            </VitalGroup>
           </View>
         );
       case 'other':
@@ -261,7 +288,6 @@ const styles = StyleSheet.create({
   vitalStepTitle: { ...Typography.h2, color: Colors.textPrimary, paddingHorizontal: Spacing.lg, paddingTop: Spacing.md },
 
   stepContent: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg, gap: Spacing.md, flex: 1, justifyContent: 'center' },
-  subLabel: { ...Typography.label, color: Colors.textSecondary, textTransform: 'uppercase' },
 
   bpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   slash: { ...Typography.h2, color: Colors.textSecondary, paddingTop: Spacing.lg },
