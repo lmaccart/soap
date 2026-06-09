@@ -8,7 +8,7 @@ import * as Haptics from 'expo-haptics';
 import { useAssessment } from '@/store/assessmentContext';
 import StepHeader from '@/components/StepHeader';
 import WizardNav from '@/components/WizardNav';
-import { TextInput, NumericStepper } from '@/components/ui';
+import { NumericStepper } from '@/components/ui';
 import { Colors } from '@/constants/colors';
 import { Typography, Spacing, Radius } from '@/constants/typography';
 
@@ -74,7 +74,7 @@ export default function SceneSizeUpScreen() {
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={1} title="Scene Size-Up" />
+      <StepHeader stepNumber={1} title="Scene" />
 
       <View style={styles.content}>
 
@@ -134,15 +134,6 @@ export default function SceneSizeUpScreen() {
           )}
         </View>
 
-        {/* Location */}
-        <View style={styles.section}>
-          <TextInput
-            label="Location"
-            placeholder="Trail, GPS, landmarks..."
-            value={scene?.location ?? ''}
-            onChangeText={(text) => updateScene({ location: text })}
-          />
-        </View>
 
       </View>
 
