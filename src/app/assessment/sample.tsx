@@ -3,7 +3,7 @@
  * One letter at a time, no scrolling.
  */
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput as RNTextInput, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput as RNTextInput, Pressable } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useAssessment } from '@/store/assessmentContext';
@@ -68,7 +68,7 @@ export default function SAMPLEScreen() {
   const chips = 'chips' in current ? current.chips : null;
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={styles.container}>
       <StepHeader stepNumber={5} title="SAMPLE" />
 
       {/* Step indicator */}
@@ -145,7 +145,7 @@ export default function SAMPLEScreen() {
         onSkip={handleNext}
         skipLabel="Skip"
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

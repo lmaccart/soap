@@ -3,7 +3,7 @@
  * Wraps all assessment screens with timer.
  */
 import { Stack } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Colors } from '@/constants/colors';
 import { Spacing } from '@/constants/typography';
 import { useAssessment } from '@/store/assessmentContext';
@@ -29,13 +29,18 @@ export default function AssessmentLayout() {
           <IncidentTimer formattedTime={stopwatch.formattedTime} isRunning={stopwatch.isRunning} />
         </View>
       </View>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: Colors.background },
-          animation: 'slide_from_right',
-        }}
-      />
+      <KeyboardAvoidingView
+        style={styles.kav}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: Colors.background },
+            animation: 'slide_from_right',
+          }}
+        />
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -48,4 +53,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
   },
   timerRow: { flexDirection: 'row', justifyContent: 'flex-end' },
+  kav: { flex: 1 },
 });

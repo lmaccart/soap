@@ -3,7 +3,7 @@
  * One letter at a time, no scrolling.
  */
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput as RNTextInput, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput as RNTextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useAssessment } from '@/store/assessmentContext';
@@ -114,7 +114,7 @@ export default function OPQRSTScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={styles.container}>
       <StepHeader stepNumber={6} title="OPQRST" />
 
       <View style={styles.stepRow}>
@@ -138,7 +138,7 @@ export default function OPQRSTScreen() {
         onSkip={handleNext}
         skipLabel="Skip"
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
