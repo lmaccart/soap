@@ -1,13 +1,13 @@
 /**
  * QuickSOAP — Step 2: BSI / PPE
  */
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useAssessment } from '@/store/assessmentContext';
 import StepHeader from '@/components/StepHeader';
 import WizardNav from '@/components/WizardNav';
-import { Checkbox } from '@/components/ui';
 import { BSI_ITEMS } from '@/constants/clinicalData';
 import { Colors } from '@/constants/colors';
 import { Typography, Spacing, Radius } from '@/constants/typography';
@@ -16,14 +16,14 @@ export default function BSIScreen() {
   const router = useRouter();
   const { state, dispatch } = useAssessment();
   const bsiItems = state.incident?.bsiItems ?? {};
+  const glovesOn = bsiItems['gloves'] ?? false;
 
-  const toggleItem = (key: string) => {
+  const toggle = (key: string) => {
     const updated = { ...bsiItems, [key]: !bsiItems[key] };
-    const glovesChecked = updated['gloves'] ?? false;
-    dispatch({ type: 'UPDATE_BSI', payload: { completed: glovesChecked, items: updated } });
+    dispatch({ type: 'UPDATE_BSI', payload: { completed: updated['gloves'] ?? false, items: updated } });
   };
 
-  const handleNext = () => {
+  const goNext = () => {
     dispatch({ type: 'SET_STEP', payload: 3 });
     if ((state.incident?.scene.numPatients ?? 1) > 1) {
       router.push('/assessment/triage');
@@ -32,6 +32,14 @@ export default function BSIScreen() {
     }
   };
 
+  // Auto-advance when gloves are checked
+  useEffect(() => {
+    if (glovesOn) {
+      const t = setTimeout(goNext, 400);
+      return () => clearTimeout(t);
+    }
+  }, [glovesOn]);
+
   const handleBack = () => {
     dispatch({ type: 'SET_STEP', payload: 1 });
     router.back();
@@ -39,63 +47,58 @@ export default function BSIScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-        <StepHeader
-          stepNumber={2}
-          title="BSI / PPE"
-          reminder="Treat ALL body fluids as potentially infectious. Don PPE before patient contact."
-        />
-
-        <View style={styles.section}>
-          <View style={styles.warningBox}>
-            <Text style={styles.warningIcon}>🧤</Text>
-            <Text style={styles.warningText}>
-              Universal precautions — every patient, every fluid is potentially infectious
-            </Text>
-          </View>
-
-          {BSI_ITEMS.map((item) => (
-            <Checkbox
-              key={item.key}
-              label={item.label}
-              sublabel={item.required ? 'Required' : undefined}
-              checked={bsiItems[item.key] ?? false}
-              onChange={() => toggleItem(item.key)}
-              color={item.required ? Colors.clinicalGreen : undefined}
-            />
-          ))}
-
-          {!bsiItems['gloves'] && (
-            <View style={styles.glovesWarning}>
-              <Text style={styles.glovesWarningText}>⚠️ Gloves are required before patient contact</Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
-
-      <WizardNav
-        onBack={handleBack}
-        onNext={handleNext}
-        nextLabel={bsiItems['gloves'] ? 'Next' : 'Override & Continue'}
+      <StepHeader
+        stepNumber={2}
+        title="BSI / PPE"
+        reminder="Don PPE before patient contact."
       />
+
+      <View style={styles.content}>
+        {BSI_ITEMS.map((item) => {
+          const checked = bsiItems[item.key] ?? false;
+          return (
+            <Pressable
+              key={item.key}
+              style={[styles.item, checked && styles.itemChecked]}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); toggle(item.key); }}
+            >
+              <View style={[styles.check, checked && styles.checkChecked]}>
+                {checked && <Text style={styles.checkMark}>✓</Text>}
+              </View>
+              <View style={styles.itemText}>
+                <Text style={[styles.itemLabel, checked && styles.itemLabelChecked]}>{item.label}</Text>
+                {item.required && <Text style={styles.requiredTag}>Required</Text>}
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <WizardNav onBack={handleBack} onNext={goNext} nextLabel={glovesOn ? 'Next' : 'Skip'} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { flex: 1 },
-  scrollContent: { paddingBottom: Spacing.xxl },
-  section: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.md },
-  warningBox: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: Colors.clinicalYellowBg,
-    padding: Spacing.base, borderRadius: Radius.md, marginBottom: Spacing.lg,
+  content: { flex: 1, paddingHorizontal: Spacing.lg, paddingTop: Spacing.md, gap: Spacing.sm },
+
+  item: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    padding: Spacing.lg, borderRadius: Radius.lg,
+    backgroundColor: Colors.surface, borderWidth: 2, borderColor: Colors.borderLight,
   },
-  warningIcon: { fontSize: 28 },
-  warningText: { ...Typography.body, color: Colors.clinicalYellow, flex: 1 },
-  glovesWarning: {
-    backgroundColor: Colors.clinicalRedBg, padding: Spacing.md,
-    borderRadius: Radius.md, marginTop: Spacing.md,
+  itemChecked: { borderColor: Colors.clinicalGreen, backgroundColor: Colors.clinicalGreenBg },
+
+  check: {
+    width: 32, height: 32, borderRadius: 16, borderWidth: 2,
+    borderColor: Colors.border, alignItems: 'center', justifyContent: 'center',
   },
-  glovesWarningText: { ...Typography.bodySmall, color: Colors.clinicalRed },
+  checkChecked: { backgroundColor: Colors.clinicalGreen, borderColor: Colors.clinicalGreen },
+  checkMark: { color: Colors.textOnPrimary, fontSize: 16, fontWeight: '700' },
+
+  itemText: { flex: 1 },
+  itemLabel: { ...Typography.h3, color: Colors.textPrimary },
+  itemLabelChecked: { color: Colors.clinicalGreen },
+  requiredTag: { ...Typography.caption, color: Colors.primary, marginTop: 2 },
 });

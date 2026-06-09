@@ -1,200 +1,183 @@
 /**
  * QuickSOAP — Step 7: OPQRST
- * Onset, Provocation/Palliation, Quality, Region/Radiation, Severity, Time
+ * One letter at a time, no scrolling.
  */
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput as RNTextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useAssessment } from '@/store/assessmentContext';
 import StepHeader from '@/components/StepHeader';
 import WizardNav from '@/components/WizardNav';
-import { TextInput, Chip } from '@/components/ui';
+import { Chip } from '@/components/ui';
 import { PAIN_QUALITIES } from '@/constants/clinicalData';
 import { Colors } from '@/constants/colors';
 import { Typography, Spacing, Radius } from '@/constants/typography';
-import { NumericStepper } from '@/components/ui';
+
+const STEPS = [
+  { key: 'O', label: 'Onset', prompt: 'When did it start? What were you doing?' },
+  { key: 'P', label: 'Provocation / Palliation', prompt: 'What makes it better or worse?' },
+  { key: 'Q', label: 'Quality', prompt: 'What does it feel like?' },
+  { key: 'R', label: 'Region / Radiation', prompt: 'Where is it? Does it move?' },
+  { key: 'S', label: 'Severity', prompt: 'Rate your pain 0–10.' },
+  { key: 'T', label: 'Time', prompt: 'How long? Constant or comes and goes?' },
+] as const;
 
 export default function OPQRSTScreen() {
   const router = useRouter();
   const { state, dispatch, currentPatient } = useAssessment();
+  const [step, setStep] = useState(0);
   const opqrst = currentPatient?.opqrst;
 
-  const update = (fields: Parameters<typeof dispatch>[0] extends { type: 'UPDATE_OPQRST'; payload: infer P } ? P : never) => {
-    dispatch({ type: 'UPDATE_OPQRST', payload: fields });
+  const update = (fields: Partial<NonNullable<typeof opqrst>>) => {
+    dispatch({ type: 'UPDATE_OPQRST', payload: fields as any });
   };
 
   const handleNext = () => {
-    dispatch({ type: 'SET_STEP', payload: 8 });
-    if (state.isAmsDetected) {
-      router.push('/assessment/stop-eats');
+    if (step < STEPS.length - 1) {
+      setStep(step + 1);
     } else {
-      router.push('/assessment/vitals');
+      dispatch({ type: 'SET_STEP', payload: 8 });
+      router.push(state.isAmsDetected ? '/assessment/stop-eats' : '/assessment/vitals');
     }
   };
 
   const handleBack = () => {
-    dispatch({ type: 'SET_STEP', payload: 6 });
-    router.back();
+    if (step > 0) {
+      setStep(step - 1);
+    } else {
+      dispatch({ type: 'SET_STEP', payload: 6 });
+      router.back();
+    }
   };
 
-  const severityColor = (opqrst?.severity ?? 0) >= 7
-    ? Colors.clinicalRed
-    : (opqrst?.severity ?? 0) >= 4
-      ? Colors.clinicalYellow
-      : Colors.clinicalGreen;
+  const current = STEPS[step];
+
+  const renderInput = () => {
+    if (current.key === 'Q') {
+      return (
+        <View style={styles.chipGrid}>
+          {PAIN_QUALITIES.map((q) => (
+            <Chip
+              key={q} label={q}
+              selected={opqrst?.quality === q}
+              onPress={() => update({ quality: opqrst?.quality === q ? '' : q })}
+            />
+          ))}
+        </View>
+      );
+    }
+
+    if (current.key === 'S') {
+      const severity = opqrst?.severity ?? 0;
+      const color = severity >= 7 ? Colors.clinicalRed : severity >= 4 ? Colors.clinicalYellow : Colors.clinicalGreen;
+      return (
+        <View style={styles.severityBlock}>
+          <View style={[styles.severityDisplay, { backgroundColor: color + '20', borderColor: color }]}>
+            <Text style={[styles.severityNum, { color }]}>{severity}</Text>
+            <Text style={[styles.severityOf, { color }]}>/10</Text>
+          </View>
+          <View style={styles.severityBtns}>
+            {[0,1,2,3,4,5,6,7,8,9,10].map(n => (
+              <Pressable
+                key={n}
+                style={[styles.severityBtn, { borderColor: n >= 7 ? Colors.clinicalRed : n >= 4 ? Colors.clinicalYellow : Colors.clinicalGreen }, n === severity && { backgroundColor: (n >= 7 ? Colors.clinicalRed : n >= 4 ? Colors.clinicalYellow : Colors.clinicalGreen) }]}
+                onPress={() => { Haptics.selectionAsync(); update({ severity: n }); }}
+              >
+                <Text style={[styles.severityBtnText, n === severity && styles.severityBtnTextSelected]}>{n}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      );
+    }
+
+    const fieldMap: Record<string, keyof NonNullable<typeof opqrst>> = {
+      O: 'onset', P: 'provocation', R: 'region', T: 'timeDuration',
+    };
+    const field = fieldMap[current.key];
+    const value = field ? ((opqrst?.[field] ?? '') as string) : '';
+
+    return (
+      <RNTextInput
+        style={styles.input}
+        value={value}
+        onChangeText={(v) => field && update({ [field]: v })}
+        placeholder="Type here..."
+        placeholderTextColor={Colors.textHint}
+        multiline
+        numberOfLines={4}
+        textAlignVertical="top"
+        autoFocus
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-        <StepHeader
-          stepNumber={7}
-          title="OPQRST"
-          reminder="Characterize the chief complaint in detail. Use open-ended questions first."
-        />
+      <StepHeader stepNumber={7} title="OPQRST" />
 
-        {/* Onset */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>O — Onset</Text>
-          <TextInput
-            label="When did it start? What were you doing?"
-            placeholder="Sudden vs. gradual, activity at onset..."
-            value={opqrst?.onset ?? ''}
-            onChangeText={(text) => update({ onset: text })}
-            multiline
-            numberOfLines={2}
-          />
-        </View>
-
-        {/* Provocation / Palliation */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>P — Provocation / Palliation</Text>
-          <TextInput
-            label="What makes it worse?"
-            placeholder="Movement, breathing, pressure, position..."
-            value={opqrst?.provocation ?? ''}
-            onChangeText={(text) => update({ provocation: text })}
-            multiline
-            numberOfLines={2}
-          />
-          <TextInput
-            label="What makes it better?"
-            placeholder="Rest, position change, medication..."
-            value={opqrst?.palliation ?? ''}
-            onChangeText={(text) => update({ palliation: text })}
-            multiline
-            numberOfLines={2}
-          />
-        </View>
-
-        {/* Quality */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Q — Quality</Text>
-          <Text style={styles.hint}>Tap to select or describe in your own words</Text>
-          <View style={styles.chipGrid}>
-            {PAIN_QUALITIES.map((q) => (
-              <Chip
-                key={q}
-                label={q}
-                selected={opqrst?.quality === q}
-                onPress={() => update({ quality: opqrst?.quality === q ? '' : q })}
-              />
-            ))}
+      <View style={styles.stepRow}>
+        {STEPS.map((s, i) => (
+          <View key={s.key} style={[styles.stepDot, i === step && styles.stepDotActive, i < step && styles.stepDotDone]}>
+            <Text style={[styles.stepDotText, (i === step || i < step) && styles.stepDotTextActive]}>{s.key}</Text>
           </View>
-          <TextInput
-            label="Describe in patient's own words"
-            placeholder="Other description..."
-            value={opqrst?.quality ?? ''}
-            onChangeText={(text) => update({ quality: text })}
-          />
-        </View>
+        ))}
+      </View>
 
-        {/* Region / Radiation */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>R — Region / Radiation</Text>
-          <TextInput
-            label="Where is it? Does it radiate?"
-            placeholder="Location, does it travel to shoulder, arm, jaw, back..."
-            value={opqrst?.region ?? ''}
-            onChangeText={(text) => update({ region: text })}
-            multiline
-            numberOfLines={2}
-          />
-          <TextInput
-            label="Radiation"
-            placeholder="Does the pain move anywhere else?"
-            value={opqrst?.radiation ?? ''}
-            onChangeText={(text) => update({ radiation: text })}
-          />
-        </View>
+      <View style={styles.content}>
+        <Text style={styles.letterLabel}>{current.key} — {current.label}</Text>
+        <Text style={styles.prompt}>{current.prompt}</Text>
+        {renderInput()}
+      </View>
 
-        {/* Severity */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>S — Severity</Text>
-          <Text style={styles.hint}>0 = no pain, 10 = worst imaginable</Text>
-          <View style={styles.severityRow}>
-            <NumericStepper
-              value={opqrst?.severity ?? 0}
-              onChange={(val) => update({ severity: val })}
-              min={0}
-              max={10}
-            />
-            <View style={[styles.severityBadge, { backgroundColor: severityColor + '22' }]}>
-              <Text style={[styles.severityScore, { color: severityColor }]}>
-                {opqrst?.severity ?? 0}/10
-              </Text>
-              <Text style={[styles.severityLabel, { color: severityColor }]}>
-                {(opqrst?.severity ?? 0) >= 7 ? 'Severe' : (opqrst?.severity ?? 0) >= 4 ? 'Moderate' : 'Mild'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Time */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>T — Time / Duration</Text>
-          <TextInput
-            label="How long? Constant or intermittent?"
-            placeholder="Started 2 hours ago, comes and goes every 10 min..."
-            value={opqrst?.timeDuration ?? ''}
-            onChangeText={(text) => update({ timeDuration: text })}
-            multiline
-            numberOfLines={2}
-          />
-        </View>
-
-        {state.isAmsDetected && (
-          <View style={styles.amsNotice}>
-            <Text style={styles.amsNoticeText}>
-              ⚠️ AMS detected — STOP EATS differential will follow
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-
-      <WizardNav onBack={handleBack} onNext={handleNext} />
+      <WizardNav
+        onBack={handleBack}
+        onNext={handleNext}
+        nextLabel={step < STEPS.length - 1 ? STEPS[step + 1].key : 'Done'}
+        onSkip={handleNext}
+        skipLabel="Skip"
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 100 },
-  section: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg, gap: Spacing.md },
-  sectionTitle: { ...Typography.h3, color: Colors.textPrimary },
-  hint: { ...Typography.caption, color: Colors.textHint, marginTop: -Spacing.xs },
+
+  stepRow: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.sm, paddingTop: Spacing.md },
+  stepDot: {
+    width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.background, borderWidth: 2, borderColor: Colors.borderLight,
+  },
+  stepDotActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  stepDotDone: { backgroundColor: Colors.clinicalGreen, borderColor: Colors.clinicalGreen },
+  stepDotText: { ...Typography.label, color: Colors.textHint },
+  stepDotTextActive: { color: Colors.textOnPrimary },
+
+  content: { flex: 1, paddingHorizontal: Spacing.lg, paddingTop: Spacing.xl, gap: Spacing.md },
+  letterLabel: { ...Typography.h2, color: Colors.primary },
+  prompt: { ...Typography.body, color: Colors.textSecondary, fontStyle: 'italic' },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  severityRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xl, paddingTop: Spacing.sm },
-  severityBadge: {
-    paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
-    borderRadius: Radius.lg, alignItems: 'center',
+  input: {
+    ...Typography.body, color: Colors.textPrimary,
+    backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border,
+    borderRadius: Radius.md, padding: Spacing.md, flex: 1,
   },
-  severityScore: { ...Typography.h1 },
-  severityLabel: { ...Typography.caption, fontWeight: '600' },
-  amsNotice: {
-    marginHorizontal: Spacing.lg, marginTop: Spacing.lg,
-    backgroundColor: Colors.clinicalYellowBg, padding: Spacing.md,
-    borderRadius: Radius.md,
+
+  severityBlock: { gap: Spacing.lg, alignItems: 'center' },
+  severityDisplay: {
+    flexDirection: 'row', alignItems: 'baseline', gap: Spacing.xs,
+    paddingHorizontal: Spacing.xxxl, paddingVertical: Spacing.lg,
+    borderRadius: Radius.xl, borderWidth: 3,
   },
-  amsNoticeText: { ...Typography.bodySmall, color: Colors.clinicalYellow },
+  severityNum: { fontSize: 64, fontWeight: '700', lineHeight: 72 },
+  severityOf: { ...Typography.h2 },
+  severityBtns: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, justifyContent: 'center' },
+  severityBtn: {
+    width: 44, height: 44, borderRadius: 22, borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  severityBtnText: { ...Typography.label, color: Colors.textPrimary },
+  severityBtnTextSelected: { color: Colors.textOnPrimary, fontWeight: '700' },
 });
