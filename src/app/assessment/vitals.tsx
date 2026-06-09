@@ -2,7 +2,7 @@
  * QuickSOAP — Step 9: Vitals
  * Paginated — one vital at a time, no scrolling.
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, TextInput as RNTextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -70,6 +70,87 @@ const ni = StyleSheet.create({
   box: { borderWidth: 2, borderColor: Colors.border, borderRadius: Radius.md, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm },
   input: { ...Typography.h2, textAlign: 'center' },
   range: { ...Typography.caption, textAlign: 'center' },
+});
+
+function RateTimer({ label }: { label: string }) {
+  const [elapsed, setElapsed] = useState(0);
+  const [running, setRunning] = useState(false);
+  const startRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hapticsAt = useRef<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (running) {
+      startRef.current = Date.now() - elapsed;
+      intervalRef.current = setInterval(() => {
+        const s = Math.floor((Date.now() - startRef.current!) / 1000);
+        setElapsed(Date.now() - startRef.current!);
+        if ((s === 15 || s === 30) && !hapticsAt.current.has(s)) {
+          hapticsAt.current.add(s);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        }
+      }, 100);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [running]);
+
+  const seconds = Math.floor(elapsed / 1000);
+  const reset = () => { setRunning(false); setElapsed(0); hapticsAt.current.clear(); };
+  const color = seconds >= 30 ? Colors.clinicalRed : seconds >= 15 ? Colors.clinicalYellow : Colors.clinicalGreen;
+
+  return (
+    <View style={rt.wrap}>
+      <Text style={rt.hint}>Count {label.toLowerCase()} while timer runs</Text>
+      <Text style={[rt.time, { color }]}>{seconds}s</Text>
+      <View style={rt.marks}>
+        <View style={[rt.mark, seconds >= 15 && { backgroundColor: Colors.clinicalYellow }]}>
+          <Text style={[rt.markText, seconds >= 15 && rt.markTextHit]}>15s → ×4</Text>
+        </View>
+        <View style={[rt.mark, seconds >= 30 && { backgroundColor: Colors.clinicalRed }]}>
+          <Text style={[rt.markText, seconds >= 30 && rt.markTextHit]}>30s → ×2</Text>
+        </View>
+      </View>
+      <View style={rt.btns}>
+        <Pressable
+          style={[rt.btn, running ? rt.btnStop : rt.btnStart]}
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setRunning(r => !r); }}
+        >
+          <Text style={rt.btnText}>{running ? 'Stop' : elapsed > 0 ? 'Resume' : 'Start'}</Text>
+        </Pressable>
+        {elapsed > 0 && !running && (
+          <Pressable style={rt.btnReset} onPress={reset}>
+            <Text style={rt.btnResetText}>Reset</Text>
+          </Pressable>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const rt = StyleSheet.create({
+  wrap: {
+    backgroundColor: Colors.surface, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.borderLight,
+    padding: Spacing.md, gap: Spacing.sm, alignItems: 'center',
+  },
+  hint: { ...Typography.caption, color: Colors.textSecondary },
+  time: { fontSize: 56, fontWeight: '700', lineHeight: 64 },
+  marks: { flexDirection: 'row', gap: Spacing.md },
+  mark: {
+    paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs,
+    borderRadius: Radius.md, backgroundColor: Colors.borderLight,
+  },
+  markText: { ...Typography.caption, color: Colors.textSecondary, fontWeight: '700' },
+  markTextHit: { color: Colors.textOnPrimary },
+  btns: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.xs },
+  btn: { paddingVertical: Spacing.md, paddingHorizontal: Spacing.xxl, borderRadius: Radius.lg },
+  btnStart: { backgroundColor: Colors.primary },
+  btnStop: { backgroundColor: Colors.clinicalRed },
+  btnText: { ...Typography.button, color: Colors.textOnPrimary },
+  btnReset: { paddingVertical: Spacing.md, paddingHorizontal: Spacing.lg, borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border },
+  btnResetText: { ...Typography.button, color: Colors.textSecondary },
 });
 
 function VitalGroup({ label, options, value, onChange }: {
@@ -167,6 +248,7 @@ export default function VitalsScreen() {
       case 'pulse':
         return (
           <View style={styles.stepContent}>
+            <RateTimer label="Pulse" />
             <NumInput label="Heart Rate (bpm)" value={draft.pulseRate} onChange={(v) => set({ pulseRate: v })} placeholder="72" rangeKey="pulseRate" />
             <VitalGroup label="Quality" options={VITAL_OPTIONS.pulseQuality} value={draft.pulseQuality} onChange={(v) => set({ pulseQuality: v })} />
             <VitalGroup label="Regularity" options={VITAL_OPTIONS.pulseRegularity} value={draft.pulseRegularity} onChange={(v) => set({ pulseRegularity: v })} />
@@ -175,6 +257,7 @@ export default function VitalsScreen() {
       case 'resp':
         return (
           <View style={styles.stepContent}>
+            <RateTimer label="Respirations" />
             <NumInput label="Respiratory Rate (breaths/min)" value={draft.respRate} onChange={(v) => set({ respRate: v })} placeholder="16" rangeKey="respRate" />
             <VitalGroup label="Quality" options={VITAL_OPTIONS.respQuality} value={draft.respQuality} onChange={(v) => set({ respQuality: v })} />
           </View>
