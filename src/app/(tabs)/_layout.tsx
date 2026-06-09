@@ -44,7 +44,6 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => <TabIcon name="index" focused={focused} />,
         }}
       />
-      <Tabs.Screen name="history" options={{ href: null }} />
       <Tabs.Screen
         name="reference"
         options={{
