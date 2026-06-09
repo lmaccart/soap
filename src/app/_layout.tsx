@@ -27,17 +27,7 @@ export default function RootLayout() {
             name="assessment"
             options={{ headerShown: false, presentation: 'fullScreenModal' }}
           />
-          <Stack.Screen
-            name="reference"
-            options={{
-              headerTitle: 'Treatment Reference',
-              presentation: 'modal',
-            }}
-          />
-          <Stack.Screen
-            name="note/[id]"
-            options={{ headerTitle: 'SOAP Note' }}
-          />
+
         </Stack>
       </AssessmentProvider>
     </DatabaseProvider>

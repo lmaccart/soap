@@ -2,7 +2,8 @@
  * QuickSOAP — Treatment Reference tab
  */
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Card } from '@/components/ui';
 import { TREATMENT_CARDS } from '@/constants/treatmentCards';

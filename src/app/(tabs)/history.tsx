@@ -2,7 +2,8 @@
  * QuickSOAP — History tab (past SOAP notes)
  */
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Badge } from '@/components/ui';
 import { Colors } from '@/constants/colors';
 import { Typography, Spacing } from '@/constants/typography';
