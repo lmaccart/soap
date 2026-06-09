@@ -7,8 +7,7 @@ import { useRouter } from 'expo-router';
 import { useAssessment } from '@/store/assessmentContext';
 import StepHeader from '@/components/StepHeader';
 import WizardNav from '@/components/WizardNav';
-import { Checkbox, RadioGroup, TextInput, NumericStepper, Chip } from '@/components/ui';
-import { SCENE_HAZARDS, RESOURCES } from '@/constants/clinicalData';
+import { RadioGroup, TextInput, NumericStepper } from '@/components/ui';
 import { Colors } from '@/constants/colors';
 import { Typography, Spacing, Radius } from '@/constants/typography';
 
@@ -34,16 +33,6 @@ export default function SceneSizeUpScreen() {
 
   const updateScene = (updates: Record<string, any>) => {
     dispatch({ type: 'UPDATE_SCENE', payload: updates });
-  };
-
-  const toggleHazard = (key: string) => {
-    const current = scene?.hazards ?? {};
-    updateScene({ hazards: { ...current, [key]: !current[key] } });
-  };
-
-  const toggleResource = (key: string) => {
-    const current = scene?.resources ?? {};
-    updateScene({ resources: { ...current, [key]: !current[key] } });
   };
 
   const handleNext = () => {
@@ -74,29 +63,6 @@ export default function SceneSizeUpScreen() {
           title="Scene Size-Up"
           reminder="Look up, down, and all around. Ensure the scene is safe before approaching."
         />
-
-        {/* Scene Safety */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Scene Safety Hazards</Text>
-          <View style={styles.chipGrid}>
-            {SCENE_HAZARDS.map((hazard) => (
-              <Chip
-                key={hazard.key}
-                label={`${hazard.icon} ${hazard.label}`}
-                selected={scene?.hazards?.[hazard.key] ?? false}
-                onPress={() => toggleHazard(hazard.key)}
-              />
-            ))}
-          </View>
-          <TextInput
-            label="Hazard Details"
-            placeholder="Describe any specific hazards..."
-            value={scene?.hazardNotes ?? ''}
-            onChangeText={(text) => updateScene({ hazardNotes: text })}
-            multiline
-            numberOfLines={2}
-          />
-        </View>
 
         {/* MOI / NOI */}
         <View style={styles.section}>
@@ -136,27 +102,6 @@ export default function SceneSizeUpScreen() {
           )}
         </View>
 
-        {/* Resources */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Available Resources</Text>
-          {RESOURCES.map((resource) => (
-            <Checkbox
-              key={resource.key}
-              label={resource.label}
-              checked={scene?.resources?.[resource.key] ?? false}
-              onChange={() => toggleResource(resource.key)}
-            />
-          ))}
-          <TextInput
-            label="Additional Resources / Notes"
-            placeholder="Other personnel, gear, communication..."
-            value={scene?.resourceNotes ?? ''}
-            onChangeText={(text) => updateScene({ resourceNotes: text })}
-            multiline
-            numberOfLines={2}
-          />
-        </View>
-
         {/* Location */}
         <View style={styles.section}>
           <TextInput
@@ -191,7 +136,6 @@ const styles = StyleSheet.create({
   // Sections
   section: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg },
   sectionTitle: { ...Typography.h3, color: Colors.textPrimary, marginBottom: Spacing.md },
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.base },
 
   // MCI Warning
   mciWarning: {
