@@ -2,7 +2,7 @@
  * QuickSOAP — Home screen
  * Start new assessment or resume active incident.
  */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAssessment } from '@/store/assessmentContext';
@@ -18,6 +18,16 @@ export default function HomeScreen() {
   const { state, dispatch } = useAssessment();
   const stopwatch = useStopwatch();
   const hasActive = state.incident?.status === 'active';
+  const autoStarted = useRef(false);
+
+  useEffect(() => {
+    if (!hasActive && !autoStarted.current) {
+      autoStarted.current = true;
+      dispatch({ type: 'START_INCIDENT' });
+      stopwatch.start();
+      router.push('/assessment/scene-size-up');
+    }
+  }, []);
 
   const handleNewAssessment = () => {
     dispatch({ type: 'START_INCIDENT' });
