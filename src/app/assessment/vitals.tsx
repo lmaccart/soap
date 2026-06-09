@@ -9,7 +9,7 @@ import * as Haptics from 'expo-haptics';
 import { useAssessment, VitalsEntry, generateId } from '@/store/assessmentContext';
 import StepHeader from '@/components/StepHeader';
 import WizardNav from '@/components/WizardNav';
-import { RadioGroup, Card } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { VITAL_OPTIONS, VITAL_NORMALS } from '@/constants/clinicalData';
 import { Colors } from '@/constants/colors';
 import { Typography, Spacing, Radius } from '@/constants/typography';
@@ -72,11 +72,29 @@ const ni = StyleSheet.create({
   range: { ...Typography.caption, textAlign: 'center' },
 });
 
-function VitalGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function VitalGroup({ label, options, value, onChange }: {
+  label: string;
+  options: readonly string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <View style={vg.wrap}>
       <Text style={vg.label}>{label}</Text>
-      {children}
+      <View style={vg.pills}>
+        {options.map((opt) => {
+          const sel = value === opt;
+          return (
+            <Pressable
+              key={opt}
+              style={[vg.pill, sel && vg.pillSelected]}
+              onPress={() => { Haptics.selectionAsync(); onChange(opt); }}
+            >
+              <Text style={[vg.pillText, sel && vg.pillTextSelected]}>{opt}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -88,6 +106,15 @@ const vg = StyleSheet.create({
     paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, paddingBottom: Spacing.md, gap: Spacing.sm,
   },
   label: { ...Typography.label, color: Colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  pill: {
+    paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md,
+    borderRadius: Radius.lg, borderWidth: 2, borderColor: Colors.borderLight,
+    backgroundColor: Colors.background,
+  },
+  pillSelected: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  pillText: { ...Typography.body, color: Colors.textPrimary },
+  pillTextSelected: { color: Colors.primary, fontWeight: '700' },
 });
 
 export default function VitalsScreen() {
@@ -141,46 +168,30 @@ export default function VitalsScreen() {
         return (
           <View style={styles.stepContent}>
             <NumInput label="Heart Rate (bpm)" value={draft.pulseRate} onChange={(v) => set({ pulseRate: v })} placeholder="72" rangeKey="pulseRate" />
-            <VitalGroup label="Quality">
-              <RadioGroup options={VITAL_OPTIONS.pulseQuality.map(v => ({ value: v, label: v }))} value={draft.pulseQuality} onChange={(v) => set({ pulseQuality: v })} direction="horizontal" />
-            </VitalGroup>
-            <VitalGroup label="Regularity">
-              <RadioGroup options={VITAL_OPTIONS.pulseRegularity.map(v => ({ value: v, label: v }))} value={draft.pulseRegularity} onChange={(v) => set({ pulseRegularity: v })} direction="horizontal" />
-            </VitalGroup>
+            <VitalGroup label="Quality" options={VITAL_OPTIONS.pulseQuality} value={draft.pulseQuality} onChange={(v) => set({ pulseQuality: v })} />
+            <VitalGroup label="Regularity" options={VITAL_OPTIONS.pulseRegularity} value={draft.pulseRegularity} onChange={(v) => set({ pulseRegularity: v })} />
           </View>
         );
       case 'resp':
         return (
           <View style={styles.stepContent}>
             <NumInput label="Respiratory Rate (breaths/min)" value={draft.respRate} onChange={(v) => set({ respRate: v })} placeholder="16" rangeKey="respRate" />
-            <VitalGroup label="Quality">
-              <RadioGroup options={VITAL_OPTIONS.respQuality.map(v => ({ value: v, label: v }))} value={draft.respQuality} onChange={(v) => set({ respQuality: v })} direction="horizontal" />
-            </VitalGroup>
+            <VitalGroup label="Quality" options={VITAL_OPTIONS.respQuality} value={draft.respQuality} onChange={(v) => set({ respQuality: v })} />
           </View>
         );
       case 'skin':
         return (
           <View style={styles.stepContent}>
-            <VitalGroup label="Color">
-              <RadioGroup options={VITAL_OPTIONS.skinColor.map(v => ({ value: v, label: v }))} value={draft.skinColor} onChange={(v) => set({ skinColor: v })} direction="horizontal" />
-            </VitalGroup>
-            <VitalGroup label="Temperature">
-              <RadioGroup options={VITAL_OPTIONS.skinTemp.map(v => ({ value: v, label: v }))} value={draft.skinTemp} onChange={(v) => set({ skinTemp: v })} direction="horizontal" />
-            </VitalGroup>
-            <VitalGroup label="Moisture">
-              <RadioGroup options={VITAL_OPTIONS.skinMoisture.map(v => ({ value: v, label: v }))} value={draft.skinMoisture} onChange={(v) => set({ skinMoisture: v })} direction="horizontal" />
-            </VitalGroup>
-            <VitalGroup label="Cap Refill">
-              <RadioGroup options={VITAL_OPTIONS.capRefill.map(v => ({ value: v, label: v }))} value={draft.capRefill} onChange={(v) => set({ capRefill: v })} direction="horizontal" />
-            </VitalGroup>
+            <VitalGroup label="Color" options={VITAL_OPTIONS.skinColor} value={draft.skinColor} onChange={(v) => set({ skinColor: v })} />
+            <VitalGroup label="Temperature" options={VITAL_OPTIONS.skinTemp} value={draft.skinTemp} onChange={(v) => set({ skinTemp: v })} />
+            <VitalGroup label="Moisture" options={VITAL_OPTIONS.skinMoisture} value={draft.skinMoisture} onChange={(v) => set({ skinMoisture: v })} />
+            <VitalGroup label="Cap Refill" options={VITAL_OPTIONS.capRefill} value={draft.capRefill} onChange={(v) => set({ capRefill: v })} />
           </View>
         );
       case 'pupils':
         return (
           <View style={styles.stepContent}>
-            <VitalGroup label="Pupils">
-              <RadioGroup options={VITAL_OPTIONS.pupils.map(v => ({ value: v, label: v }))} value={draft.pupils} onChange={(v) => set({ pupils: v })} direction="horizontal" />
-            </VitalGroup>
+            <VitalGroup label="Pupils" options={VITAL_OPTIONS.pupils} value={draft.pupils} onChange={(v) => set({ pupils: v })} />
           </View>
         );
       case 'other':
