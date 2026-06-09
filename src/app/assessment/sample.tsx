@@ -3,7 +3,8 @@
  * One letter at a time, no scrolling.
  */
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput as RNTextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput as RNTextInput, Pressable } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useAssessment } from '@/store/assessmentContext';
 import StepHeader from '@/components/StepHeader';
@@ -96,6 +97,35 @@ export default function SAMPLEScreen() {
           </View>
         )}
 
+        {current.key === 'L' && (
+          <View style={styles.lSection}>
+            <Text style={styles.lSubLabel}>Last Meal</Text>
+            <View style={styles.lRow}>
+              {(['🌅 Breakfast', '☀️ Lunch', '🌙 Dinner'] as const).map((meal) => {
+                const sel = value.includes(meal);
+                return (
+                  <Pressable key={meal} style={[styles.lBtn, sel && styles.lBtnSelected]}
+                    onPress={() => { Haptics.selectionAsync(); appendChip('lastIntake', meal); }}>
+                    <Text style={[styles.lBtnText, sel && styles.lBtnTextSelected]}>{meal}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text style={styles.lSubLabel}>Output</Text>
+            <View style={styles.lRow}>
+              {(['🚽 Regular bowel', '💧 Regular urine'] as const).map((item) => {
+                const sel = value.includes(item);
+                return (
+                  <Pressable key={item} style={[styles.lBtn, sel && styles.lBtnSelected]}
+                    onPress={() => { Haptics.selectionAsync(); appendChip('lastIntake', item); }}>
+                    <Text style={[styles.lBtnText, sel && styles.lBtnTextSelected]}>{item}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
         <RNTextInput
           style={styles.input}
           value={value}
@@ -136,6 +166,18 @@ const styles = StyleSheet.create({
   letterLabel: { ...Typography.h2, color: Colors.primary },
   prompt: { ...Typography.body, color: Colors.textSecondary, fontStyle: 'italic' },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+
+  lSection: { gap: Spacing.sm },
+  lSubLabel: { ...Typography.label, color: Colors.textSecondary, textTransform: 'uppercase' },
+  lRow: { flexDirection: 'row', gap: Spacing.sm, flexWrap: 'wrap' },
+  lBtn: {
+    paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md,
+    borderRadius: Radius.lg, borderWidth: 2, borderColor: Colors.borderLight,
+    backgroundColor: Colors.surface,
+  },
+  lBtnSelected: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  lBtnText: { ...Typography.body, color: Colors.textPrimary },
+  lBtnTextSelected: { color: Colors.primary, fontWeight: '700' },
   input: {
     ...Typography.body, color: Colors.textPrimary,
     backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border,
