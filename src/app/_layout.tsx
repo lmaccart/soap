@@ -27,7 +27,10 @@ export default function RootLayout() {
             name="assessment"
             options={{ headerShown: false, presentation: 'fullScreenModal' }}
           />
-
+          <Stack.Screen
+            name="reference/[id]"
+            options={{ headerShown: true, presentation: 'card' }}
+          />
         </Stack>
       </AssessmentProvider>
     </DatabaseProvider>

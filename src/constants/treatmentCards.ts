@@ -16,6 +16,7 @@ export interface TreatmentCard {
   contraindications?: string[];
   steps: TreatmentStep[];
   reminders: string[];
+  media?: string[];
 }
 
 export const TREATMENT_CARDS: TreatmentCard[] = [
