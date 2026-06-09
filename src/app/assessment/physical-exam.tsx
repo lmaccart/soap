@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { useAssessment, generateId } from '@/store/assessmentContext';
 import StepHeader from '@/components/StepHeader';
 import WizardNav from '@/components/WizardNav';
-import { RadioGroup, Checkbox, Modal, Badge } from '@/components/ui';
+import { Checkbox, Modal, Badge } from '@/components/ui';
 import { BODY_REGIONS, DCAP_BTLS } from '@/constants/clinicalData';
 import { Colors } from '@/constants/colors';
 import { Typography, Spacing, Radius } from '@/constants/typography';
@@ -98,14 +98,24 @@ export default function PhysicalExamScreen() {
                 onChange={(checked) => setDcapFindings(p => ({ ...p, [item.key]: checked }))} />
             ))}
             <Text style={styles.modalSection}>Severity</Text>
-            <RadioGroup
-              options={[
-                { value: 'minor', label: 'Minor', color: Colors.clinicalGreen },
+            <View style={styles.severityRow}>
+              {([
+                { value: 'minor',    label: 'Minor',    color: Colors.clinicalGreen },
                 { value: 'moderate', label: 'Moderate', color: Colors.clinicalYellow },
-                { value: 'severe', label: 'Severe', color: Colors.clinicalRed },
-              ]}
-              value={severity} onChange={setSeverity} direction="horizontal"
-            />
+                { value: 'severe',   label: 'Severe',   color: Colors.clinicalRed },
+              ] as const).map((opt) => {
+                const sel = severity === opt.value;
+                return (
+                  <Pressable
+                    key={opt.value}
+                    style={[styles.severityBtn, { borderColor: opt.color, backgroundColor: sel ? opt.color : opt.color + '18' }]}
+                    onPress={() => setSeverity(opt.value)}
+                  >
+                    <Text style={[styles.severityBtnText, { color: sel ? Colors.textOnPrimary : opt.color }]}>{opt.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
             <Pressable style={[styles.addBtn, !severity && styles.addBtnDisabled]} onPress={handleAddInjury} disabled={!severity}>
               <Text style={styles.addBtnText}>+ Add Finding</Text>
             </Pressable>
@@ -141,6 +151,10 @@ const styles = StyleSheet.create({
   modal: { gap: Spacing.sm },
   modalNote: { ...Typography.bodySmall, color: Colors.clinicalBlue, backgroundColor: Colors.clinicalBlueBg, padding: Spacing.md, borderRadius: Radius.md },
   modalSection: { ...Typography.label, color: Colors.textSecondary, textTransform: 'uppercase', marginTop: Spacing.md },
+  severityRow: { flexDirection: 'row', gap: Spacing.sm },
+  severityBtn: { flex: 1, paddingVertical: Spacing.md, borderRadius: Radius.lg, borderWidth: 2, alignItems: 'center' },
+  severityBtnText: { ...Typography.button },
+
   addBtn: { backgroundColor: Colors.primary, padding: Spacing.base, borderRadius: Radius.lg, alignItems: 'center', marginTop: Spacing.md },
   addBtnDisabled: { backgroundColor: Colors.disabled },
   addBtnText: { ...Typography.button, color: Colors.textOnPrimary },
