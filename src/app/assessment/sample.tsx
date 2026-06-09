@@ -49,7 +49,7 @@ export default function SAMPLEScreen() {
     if (step < STEPS.length - 1) {
       setStep(step + 1);
     } else {
-      dispatch({ type: 'SET_STEP', payload: 7 });
+      dispatch({ type: 'SET_STEP', payload: 6 });
       router.push('/assessment/opqrst');
     }
   };
@@ -58,7 +58,7 @@ export default function SAMPLEScreen() {
     if (step > 0) {
       setStep(step - 1);
     } else {
-      dispatch({ type: 'SET_STEP', payload: 5 });
+      dispatch({ type: 'SET_STEP', payload: 4 });
       router.back();
     }
   };
@@ -68,7 +68,7 @@ export default function SAMPLEScreen() {
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={6} title="SAMPLE" />
+      <StepHeader stepNumber={5} title="SAMPLE" />
 
       {/* Step indicator */}
       <View style={styles.stepRow}>

@@ -22,7 +22,11 @@ export default function SceneSizeUpScreen() {
 
   const handleNext = () => {
     dispatch({ type: 'SET_STEP', payload: 2 });
-    router.push('/assessment/bsi');
+    if ((state.incident?.scene.numPatients ?? 1) > 1) {
+      router.push('/assessment/triage');
+    } else {
+      router.push('/assessment/avpu');
+    }
   };
 
   return (
@@ -42,14 +46,42 @@ export default function SceneSizeUpScreen() {
             size="lg"
             direction="horizontal"
           />
-          <TextInput
-            label="What happened?"
-            placeholder="Describe the mechanism..."
-            value={scene?.moiNoi ?? ''}
-            onChangeText={(text) => updateScene({ moiNoi: text })}
-            multiline
-            numberOfLines={2}
-          />
+          {scene?.moiType === 'trauma' && (
+            <>
+              <Text style={styles.label}>Mechanism</Text>
+              <RadioGroup
+                options={[
+                  { value: 'fall', label: 'Fall' },
+                  { value: 'mvc', label: 'MVC / Crash' },
+                  { value: 'struck', label: 'Struck by object' },
+                  { value: 'crush', label: 'Crush injury' },
+                  { value: 'blast', label: 'Blast / Explosion' },
+                  { value: 'other_trauma', label: 'Other Trauma' },
+                ]}
+                value={scene?.moiNoi ?? ''}
+                onChange={(value) => updateScene({ moiNoi: value })}
+                direction="horizontal"
+              />
+            </>
+          )}
+          {scene?.moiType === 'medical' && (
+            <>
+              <Text style={styles.label}>Nature of Illness</Text>
+              <RadioGroup
+                options={[
+                  { value: 'cardiac', label: 'Cardiac / Chest pain' },
+                  { value: 'respiratory', label: 'Respiratory distress' },
+                  { value: 'diabetic', label: 'Diabetic emergency' },
+                  { value: 'allergic', label: 'Allergic reaction' },
+                  { value: 'neuro', label: 'Neurological' },
+                  { value: 'other_medical', label: 'Other Medical' },
+                ]}
+                value={scene?.moiNoi ?? ''}
+                onChange={(value) => updateScene({ moiNoi: value })}
+                direction="horizontal"
+              />
+            </>
+          )}
         </View>
 
         <View style={styles.section}>

@@ -37,7 +37,7 @@ export default function OPQRSTScreen() {
     if (step < STEPS.length - 1) {
       setStep(step + 1);
     } else {
-      dispatch({ type: 'SET_STEP', payload: 8 });
+      dispatch({ type: 'SET_STEP', payload: 7 });
       router.push(state.isAmsDetected ? '/assessment/stop-eats' : '/assessment/vitals');
     }
   };
@@ -46,7 +46,7 @@ export default function OPQRSTScreen() {
     if (step > 0) {
       setStep(step - 1);
     } else {
-      dispatch({ type: 'SET_STEP', payload: 6 });
+      dispatch({ type: 'SET_STEP', payload: 5 });
       router.back();
     }
   };
@@ -115,7 +115,7 @@ export default function OPQRSTScreen() {
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={7} title="OPQRST" />
+      <StepHeader stepNumber={6} title="OPQRST" />
 
       <View style={styles.stepRow}>
         {STEPS.map((s, i) => (

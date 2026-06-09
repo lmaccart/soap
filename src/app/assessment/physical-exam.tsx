@@ -43,18 +43,18 @@ export default function PhysicalExamScreen() {
   };
 
   const handleNext = () => {
-    dispatch({ type: 'SET_STEP', payload: 6 });
+    dispatch({ type: 'SET_STEP', payload: 5 });
     router.push('/assessment/sample');
   };
 
   const handleBack = () => {
-    dispatch({ type: 'SET_STEP', payload: 4 });
+    dispatch({ type: 'SET_STEP', payload: 3 });
     router.back();
   };
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={5} title="Physical Exam" reminder="Look, feel, smell. Compare left to right." />
+      <StepHeader stepNumber={4} title="Physical Exam" reminder="Look, feel, smell. Compare left to right." />
 
       {/* Front / Back toggle */}
       <View style={styles.toggle}>

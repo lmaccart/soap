@@ -51,7 +51,7 @@ export default function StopEatsScreen() {
     if (step < STOP_EATS_CAUSES.length - 1) {
       setStep(step + 1);
     } else {
-      dispatch({ type: 'SET_STEP', payload: 9 });
+      dispatch({ type: 'SET_STEP', payload: 8 });
       router.push('/assessment/vitals');
     }
   };
@@ -60,14 +60,14 @@ export default function StopEatsScreen() {
     if (step > 0) {
       setStep(step - 1);
     } else {
-      dispatch({ type: 'SET_STEP', payload: 7 });
+      dispatch({ type: 'SET_STEP', payload: 6 });
       router.back();
     }
   };
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={8} title="STOP EATS" reminder="Rule out each reversible cause of AMS." />
+      <StepHeader stepNumber={7} title="STOP EATS" reminder="Rule out each reversible cause of AMS." />
 
       {/* Progress dots */}
       <View style={styles.dotsRow}>

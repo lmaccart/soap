@@ -177,13 +177,12 @@ export const TRIAGE_CATEGORIES = [
 // ── Assessment Wizard Steps ────────────────────────────────
 export const WIZARD_STEPS = [
   { key: 'scene-size-up', label: 'Scene Size-Up', shortLabel: 'Scene', number: 1 },
-  { key: 'bsi', label: 'BSI / PPE', shortLabel: 'BSI', number: 2 },
-  { key: 'avpu', label: 'AVPU', shortLabel: 'AVPU', number: 3 },
-  { key: 'abcde', label: 'ABCDE', shortLabel: 'ABCDE', number: 4 },
-  { key: 'physical-exam', label: 'Physical Exam', shortLabel: 'Exam', number: 5 },
-  { key: 'sample', label: 'SAMPLE History', shortLabel: 'SAMPLE', number: 6 },
-  { key: 'opqrst', label: 'OPQRST', shortLabel: 'OPQRST', number: 7 },
-  { key: 'stop-eats', label: 'STOP EATS', shortLabel: 'STOP', number: 8, conditional: true },
-  { key: 'vitals', label: 'Vitals', shortLabel: 'Vitals', number: 9 },
-  { key: 'soap-summary', label: 'SOAP Summary', shortLabel: 'SOAP', number: 10 },
+  { key: 'avpu', label: 'AVPU', shortLabel: 'AVPU', number: 2 },
+  { key: 'abcde', label: 'ABCDE', shortLabel: 'ABCDE', number: 3 },
+  { key: 'physical-exam', label: 'Physical Exam', shortLabel: 'Exam', number: 4 },
+  { key: 'sample', label: 'SAMPLE History', shortLabel: 'SAMPLE', number: 5 },
+  { key: 'opqrst', label: 'OPQRST', shortLabel: 'OPQRST', number: 6 },
+  { key: 'stop-eats', label: 'STOP EATS', shortLabel: 'STOP', number: 7, conditional: true },
+  { key: 'vitals', label: 'Vitals', shortLabel: 'Vitals', number: 8 },
+  { key: 'soap-summary', label: 'SOAP Summary', shortLabel: 'SOAP', number: 9 },
 ] as const;

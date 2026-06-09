@@ -99,7 +99,7 @@ export default function VitalsScreen() {
       }
       return;
     }
-    dispatch({ type: 'SET_STEP', payload: 10 });
+    dispatch({ type: 'SET_STEP', payload: 9 });
     router.push('/assessment/soap-summary');
   };
 
@@ -110,7 +110,7 @@ export default function VitalsScreen() {
       setRecording(false);
       return;
     }
-    const prevStep = state.isAmsDetected ? 8 : 7;
+    const prevStep = state.isAmsDetected ? 7 : 6;
     dispatch({ type: 'SET_STEP', payload: prevStep });
     router.back();
   };
@@ -177,7 +177,7 @@ export default function VitalsScreen() {
   if (!recording) {
     return (
       <View style={styles.container}>
-        <StepHeader stepNumber={9} title="Vitals" reminder="Baseline now. Repeat every 5 min (critical) or 15 min (stable)." />
+        <StepHeader stepNumber={8} title="Vitals" reminder="Baseline now. Repeat every 5 min (critical) or 15 min (stable)." />
 
         <View style={styles.logSection}>
           {vitalsLog.map((v, i) => (
@@ -208,7 +208,7 @@ export default function VitalsScreen() {
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={9} title="Vitals" />
+      <StepHeader stepNumber={8} title="Vitals" />
 
       <View style={styles.vitalStepRow}>
         {VITAL_STEPS.map((s, i) => (

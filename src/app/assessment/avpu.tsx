@@ -23,19 +23,19 @@ export default function AVPUScreen() {
     if (value === 'A') {
       router.push('/assessment/orientation');
     } else {
-      dispatch({ type: 'SET_STEP', payload: 4 });
+      dispatch({ type: 'SET_STEP', payload: 3 });
       router.push('/assessment/abcde');
     }
   };
 
   const handleBack = () => {
-    dispatch({ type: 'SET_STEP', payload: 2 });
+    dispatch({ type: 'SET_STEP', payload: 1 });
     router.back();
   };
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={3} title="AVPU" reminder="Tap the patient's level of consciousness." />
+      <StepHeader stepNumber={2} title="AVPU" reminder="Tap the patient's level of consciousness." />
 
       <View style={styles.buttons}>
         {AVPU_LEVELS.map((level) => (

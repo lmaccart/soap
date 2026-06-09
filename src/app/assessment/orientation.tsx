@@ -2,7 +2,7 @@
  * QuickSOAP — Step 3b: Orientation
  * Only shown when patient is Alert. Tap each area they're oriented to.
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -29,15 +29,23 @@ export default function OrientationScreen() {
   const orientedCount = Object.values(orientation).filter(Boolean).length;
 
   const handleNext = () => {
-    dispatch({ type: 'SET_STEP', payload: 4 });
+    dispatch({ type: 'SET_STEP', payload: 3 });
     router.push('/assessment/abcde');
   };
+
+  useEffect(() => {
+    if (orientedCount === 4) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      const t = setTimeout(handleNext, 500);
+      return () => clearTimeout(t);
+    }
+  }, [orientedCount]);
 
   const handleBack = () => router.back();
 
   return (
     <View style={styles.container}>
-      <StepHeader stepNumber={3} title="Orientation" reminder="Tap each area the patient correctly answers." />
+      <StepHeader stepNumber={2} title="Orientation" reminder="Tap each area the patient correctly answers." />
 
       <View style={styles.result}>
         <Text style={styles.resultValue}>A+Ox{orientedCount}</Text>

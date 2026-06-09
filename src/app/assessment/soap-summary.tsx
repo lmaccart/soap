@@ -167,7 +167,7 @@ export default function SOAPSummaryScreen() {
     <View style={styles.container}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <StepHeader
-          stepNumber={10}
+          stepNumber={9}
           title="SOAP Summary"
           reminder="Review, complete your assessment and plan, then export or hand off."
         />
