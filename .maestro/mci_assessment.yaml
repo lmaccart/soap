@@ -1,0 +1,111 @@
+appId: edu.rice.lm160.quicksoap
+---
+- launchApp
+- assertVisible: "QuickSOAP"
+- tapOn: "Start New Assessment"
+
+# Step 1: Scene Size-Up
+- assertVisible: "Scene Size-Up"
+- tapOn: "🩹 Trauma"
+- tapOn: "Describe the mechanism..."
+- inputText: "Car crash"
+- hideKeyboard
+# Set number of patients to 2
+- tapOn: "+"
+- assertVisible: "⚠️ MCI — triage will be activated"
+- tapOn: "Next"
+
+# Step 2: BSI / PPE
+- assertVisible: "BSI / PPE"
+- tapOn: "Gloves"
+- tapOn: "Next"
+
+# Step 3: MCI Triage
+- assertVisible: "MCI Triage"
+- assertVisible: "Patient 1"
+- assertVisible: "Patient 2"
+# Patient 1 (ICP/Head injury - likely 'Immediate' or 'Delayed' depending on presentation, let's mark Immediate)
+- tapOn: "🔴 Immediate"
+# Patient 2 (Unconscious Diabetic - Immediate due to altered mental status/unconscious)
+- tapOn:
+    id: ".*triageBtnLabel.*" # This will need to be refined if we have multiple buttons, but we can just use the label text
+    # Actually, let's just tap on the second "Immediate" button on the screen for the second patient
+    # Maestro can select the second instance by index
+- tapOn:
+    text: "Immediate"
+    index: 1
+- tapOn: "Next"
+
+# Step 4: AVPU (Patient 1 - ICP)
+- assertVisible: "AVPU"
+- assertVisible: "Patient 1"
+# For ICP, patient might be 'V' or 'P' or 'U', let's say 'Pain'
+- tapOn: "Pain"
+- tapOn: "Notes..."
+- inputText: "Responds only to sternal rub. Suspected ICP."
+- hideKeyboard
+- tapOn: "Next Patient"
+
+# Step 4: AVPU (Patient 2 - Unconscious Diabetic)
+- assertVisible: "Patient 2"
+- tapOn: "Unresponsive"
+- tapOn: "Notes..."
+- inputText: "Completely unresponsive. Known diabetic."
+- hideKeyboard
+- tapOn: "Next"
+
+# Step 5: ABCDE (Patient 1)
+- assertVisible: "ABCDE"
+- assertVisible: "Patient 1"
+- tapOn: "Patent"
+- scroll
+- tapOn: "Next Patient"
+
+# Step 5: ABCDE (Patient 2)
+- assertVisible: "Patient 2"
+- tapOn: "Patent"
+- tapOn: "Next"
+
+# From here, the assessment goes to Physical Exam, SAMPLE, OPQRST, STOP EATS.
+# For Patient 1 (ICP):
+- assertVisible: "Physical Exam"
+- tapOn: "Rapid Trauma Scan"
+- tapOn: "Next Patient"
+
+# For Patient 2:
+- tapOn: "Rapid Trauma Scan"
+- tapOn: "Next"
+
+# SAMPLE
+- assertVisible: "SAMPLE History"
+- tapOn: "Next Patient"
+- tapOn: "Next"
+
+# OPQRST
+- assertVisible: "OPQRST"
+- tapOn: "Next Patient"
+- tapOn: "Next"
+
+# STOP EATS
+- assertVisible: "STOP EATS"
+- assertVisible: "Patient 1"
+# Select Pressure (ICP)
+- tapOn: "Pressure"
+- tapOn: "Next Patient"
+
+# For Patient 2:
+# Select Sugar (Diabetic)
+- tapOn: "Sugar"
+- tapOn: "Next"
+
+# Vitals
+- assertVisible: "Vitals"
+- tapOn: "Next Patient"
+- tapOn: "Next"
+
+# SOAP Summary
+- assertVisible: "SOAP Summary"
+- assertVisible: "Patient 1"
+- swipe:
+    direction: RIGHT
+- assertVisible: "Patient 2"
