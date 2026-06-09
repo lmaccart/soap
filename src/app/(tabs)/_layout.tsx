@@ -9,7 +9,6 @@ import { Typography } from '@/constants/typography';
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   const icons: Record<string, string> = {
     index: '🏠',
-    history: '📋',
     reference: '📖',
   };
   return (
@@ -45,13 +44,7 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => <TabIcon name="index" focused={focused} />,
         }}
       />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: 'History',
-          tabBarIcon: ({ focused }) => <TabIcon name="history" focused={focused} />,
-        }}
-      />
+      <Tabs.Screen name="history" options={{ href: null }} />
       <Tabs.Screen
         name="reference"
         options={{
